@@ -1,0 +1,61 @@
+<?php include "navbar.php"; ?>
+<?php include "../headers/header.html";?>
+<?php  include "../db/dbconn.php"?>
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Verification</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="stylee.css">
+  <link rel="stylesheet" href="welcome.css">
+  <link rel="stylesheet" href="StyleSr.css">
+  
+  <style>
+      h1{
+          margin-top: 100px;
+          margin-left: 50px;
+          color:white;
+      }
+  </style>
+    </head>
+    <body>
+        <?php
+        
+
+     
+                
+      if(isset($_GET['email']) && !empty($_GET['email']) AND isset($_GET['com_code']) && !empty($_GET['com_code'])){
+    // Verify data
+    $email = mysqli_real_escape_string($conn,valid($_GET['email'])); 
+    $com_code = mysqli_real_escape_string($conn,$_GET['com_code']); 
+      $qwry = "SELECT user_id FROM users WHERE email='$email' AND token='$com_code' AND active=0";           
+    $search = mysqli_query($conn,"SELECT user_id FROM users WHERE email='$email' AND token='$com_code' AND active=0") or die(mysqli_error($conn)); 
+    $match  = mysqli_num_rows($search);
+                 
+    if($match > 0){
+        // We have a match, activate the account
+        $qweryy= "UPDATE `users` SET `active`=1 WHERE email='".$email."' AND token='".$com_code."' AND active=0";
+        mysqli_query($conn,$qweryy) or die(mysqli_error($conn));
+        $qry="UPDATE users SET token='' WHERE token='$com_code'";
+        $res=mysqli_query($conn,$qry);
+        if(mysqli_affected_rows($conn)>0){
+           
+        echo '<h1 style="color:white">Your account has been activated, you can now <a href="http://localhost/PhpProject1/login.php">login here</a></h1>';
+        }
+        
+        }else{
+        // No match, invalid url or account has already been activated.
+        echo '<h1>The url is either invalid or you already have activated your account.</h1>';
+    }
+                 
+}else{
+    //invalis approach
+    echo '<h1>Invalid approach, please use the link that has been send to your email.</h1>';
+} 
+mysqli_close($conn);
+        ?>
+    </body>
+</html>
